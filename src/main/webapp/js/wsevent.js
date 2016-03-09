@@ -1,4 +1,4 @@
-var socket = new SockJS("/ShoppingAssistantCrawler/ws");
+var socket = new SockJS("/WebCrawler/ws");
 var stompClient = Stomp.over(socket);
 
 // Render price data from server into HTML, registered as callback
