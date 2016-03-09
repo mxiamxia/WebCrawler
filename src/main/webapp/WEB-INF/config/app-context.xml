@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+http://www.springframework.org/schema/beans
+http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+http://www.springframework.org/schema/tx
+http://www.springframework.org/schema/tx/spring-tx-3.0.xsd
+http://www.springframework.org/schema/context
+http://www.springframework.org/schema/context/spring-context-3.0.xsd
+http://www.springframework.org/schema/aop
+http://www.springframework.org/schema/aop/spring-aop-3.0.xsd">
+
+	<context:annotation-config />
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer"
+		lazy-init="false">
+		<property name="locations">
+			<list>
+				<value>/WEB-INF/config/database.properties</value>
+				<value>/WEB-INF/config/crawler.properties</value>
+				<!-- <value>classpath:/properties/passwords.properties</value> -->
+			</list>
+		</property>
+	</bean>
+	<bean id="itemService" class="com.min.service.ItemServiceImp" />
+	<bean id="itemDao" class="com.min.dao.ItemDaoImp">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	<bean id="itemHistoryService" class="com.min.service.ItemHistoryServiceImp" />
+	<bean id="itemHistoryDao" class="com.min.dao.ItemHistoryDaoImp">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+	
+	<bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+		<property name="driverClassName" value="${jdbc.driverClassName}" />
+		<property name="url" value="${jdbc.url}" />
+		<property name="username" value="${jdbc.username}" />
+		<property name="password" value="${jdbc.password}" />
+	</bean>
+	<bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<property name="basename">
+			<value>messages</value>
+		</property>
+	</bean>
+<!-- 	<bean id="crawler" class="com.min.crawler.Crawler" /> -->
+	<bean id="itemValidator" class="com.min.validation.ItemFormValidator" />
+<!-- 	<bean id="scheduler" class="com.min.schedule.ScanScheduler" /> -->
+	<bean id="queue" class="com.min.queue.QueueUtils" />
+	
+	<bean id="objectPool" class=" org.apache.commons.pool.impl.SoftReferenceObjectPool">
+		<constructor-arg>
+			<bean class="com.min.pool.ExecutorPoolFactory" />
+		</constructor-arg>
+		<constructor-arg value="20" />
+	</bean>
+	
+	<bean id="poolManager" class="com.min.pool.PoolManager">
+	    <property name="objectPool" ref="objectPool" />
+	</bean>
+	
+	<bean id="executor"
+		class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="5" />
+		<property name="maxPoolSize" value="10" />
+		<property name="WaitForTasksToCompleteOnShutdown" value="true" />
+	</bean>
+	<bean id="reqPool" class="com.min.pool.ThreadPool" />
+</beans>
